@@ -37,8 +37,15 @@ export default function MotorcycleForm({ id = null }) {
             maxTorque: "",
             fuelCapacity: "",
             weight: "",
-            topSpeed: ""
+            topSpeed: "",
+            seatHeight: "",
+            gearbox: "",
+            frontBrake: "",
+            rearBrake: "",
+            abs: "",
+            suspension: ""
         },
+        features: [""],
         isLatest: false,
         isHighlighted: false
     });
@@ -74,8 +81,15 @@ export default function MotorcycleForm({ id = null }) {
                     fuelCapacity: "",
                     weight: "",
                     topSpeed: "",
+                    seatHeight: "",
+                    gearbox: "",
+                    frontBrake: "",
+                    rearBrake: "",
+                    abs: "",
+                    suspension: "",
                     ...data.specifications
-                }
+                },
+                features: data.features?.length ? data.features : [""]
             });
         } catch (error) {
             toast.error("Failed to load machine data");
@@ -114,6 +128,22 @@ export default function MotorcycleForm({ id = null }) {
         setFormData({ ...formData, images: newImages });
     };
 
+    const handleFeatureChange = (index, value) => {
+        const newFeatures = [...formData.features];
+        newFeatures[index] = value;
+        setFormData({ ...formData, features: newFeatures });
+    };
+
+    const addFeatureField = () => {
+        setFormData({ ...formData, features: [...formData.features, ""] });
+    };
+
+    const removeFeatureField = (index) => {
+        if (formData.features.length === 1) return;
+        const newFeatures = formData.features.filter((_, i) => i !== index);
+        setFormData({ ...formData, features: newFeatures });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -123,7 +153,8 @@ export default function MotorcycleForm({ id = null }) {
                 ...formData,
                 price: Number(formData.price),
                 displacement: Number(formData.displacement),
-                images: formData.images.filter(img => img.trim() !== "")
+                images: formData.images.filter(img => img.trim() !== ""),
+                features: formData.features.filter(f => f.trim() !== "")
             };
 
             if (id) {
@@ -273,6 +304,59 @@ export default function MotorcycleForm({ id = null }) {
                                 <Label htmlFor="spec-topSpeed" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Top Speed</Label>
                                 <Input id="spec-topSpeed" value={formData.specifications.topSpeed} onChange={handleChange} className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic" />
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="spec-seatHeight" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Seat Height</Label>
+                                <Input id="spec-seatHeight" value={formData.specifications.seatHeight} onChange={handleChange} className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="spec-gearbox" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Gearbox</Label>
+                                <Input id="spec-gearbox" value={formData.specifications.gearbox} onChange={handleChange} className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="spec-frontBrake" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Front Brake</Label>
+                                <Input id="spec-frontBrake" value={formData.specifications.frontBrake} onChange={handleChange} className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="spec-rearBrake" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Rear Brake</Label>
+                                <Input id="spec-rearBrake" value={formData.specifications.rearBrake} onChange={handleChange} className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="spec-abs" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">ABS Protocol</Label>
+                                <Input id="spec-abs" value={formData.specifications.abs} onChange={handleChange} className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="spec-suspension" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Suspension</Label>
+                                <Input id="spec-suspension" value={formData.specifications.suspension} onChange={handleChange} className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="spec-weight" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Weight</Label>
+                                <Input id="spec-weight" value={formData.specifications.weight} onChange={handleChange} className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-zinc-900 border border-white/5 p-8 space-y-8">
+                        <h3 className="text-lg font-black uppercase tracking-widest text-primary border-b border-white/10 pb-4">Specialized Features</h3>
+                        <div className="space-y-4">
+                            {formData.features.map((feature, index) => (
+                                <div key={index} className="flex gap-2">
+                                    <Input
+                                        placeholder="E.g. Ride-by-wire Throttle"
+                                        value={feature}
+                                        onChange={(e) => handleFeatureChange(index, e.target.value)}
+                                        className="bg-black border-zinc-800 text-white rounded-none focus:border-primary font-bold italic"
+                                    />
+                                    <button type="button" onClick={() => removeFeatureField(index)} className="text-zinc-700 hover:text-primary"><X size={20} /></button>
+                                </div>
+                            ))}
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={addFeatureField}
+                                className="text-zinc-500 hover:text-white uppercase font-black text-[10px] tracking-widest"
+                            >
+                                <Plus size={14} className="mr-2" /> Add Feature
+                            </Button>
                         </div>
                     </div>
                 </div>

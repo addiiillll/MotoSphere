@@ -17,8 +17,8 @@ export function AuthProvider({ children }) {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const userData = await api.get('/users/profile');
-                    setUser(userData);
+                    const response = await api.get('/users/profile');
+                    setUser(response.data);
                 } catch (error) {
                     console.error('Auth check failed:', error);
                     localStorage.removeItem('token');
@@ -32,11 +32,12 @@ export function AuthProvider({ children }) {
 
     const login = async (email, password) => {
         try {
-            const { user, token } = await api.post('/users/login', { email, password });
+            const response = await api.post('/users/login', { email, password });
+            const { token, ...userData } = response.data;
             localStorage.setItem('token', token);
-            setUser(user);
+            setUser(userData);
             toast.success('Welcome back, rider!');
-            router.push(user.role === 'admin' ? '/admin' : '/');
+            router.push(userData.role === 'admin' ? '/admin' : '/');
             return { success: true };
         } catch (error) {
             toast.error(error.message || 'Login failed');
@@ -46,7 +47,8 @@ export function AuthProvider({ children }) {
 
     const register = async (userData) => {
         try {
-            const { user, token } = await api.post('/users/register', userData);
+            const response = await api.post('/users/register', userData);
+            const { token, ...user } = response.data;
             localStorage.setItem('token', token);
             setUser(user);
             toast.success('Registration successful! Welcome to MotoSphere.');

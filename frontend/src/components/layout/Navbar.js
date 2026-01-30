@@ -35,6 +35,9 @@ const Navbar = () => {
                     <Link href="/blogs" className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-colors">
                         Blog
                     </Link>
+                    <Link href="/forum" className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-colors">
+                        Forum
+                    </Link>
                     <Link href="/contact" className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-colors">
                         Contact
                     </Link>

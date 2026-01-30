@@ -78,7 +78,7 @@ function ComparisonContent() {
     };
 
     const specKeys = [
-        { label: "Price", key: "price", format: (v) => `$${v?.toLocaleString()}` },
+        { label: "Price", key: "price", format: (v) => `₹${v?.toLocaleString()}` },
         { label: "Engine Type", key: "specifications.engineType" },
         { label: "Displacement", key: "displacement", format: (v) => `${v} CC` },
         { label: "Max Power", key: "specifications.maxPower" },
@@ -91,6 +91,30 @@ function ComparisonContent() {
 
     const getNestedValue = (obj, path) => {
         return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    };
+
+    const [isQuoting, setIsQuoting] = useState(null);
+    const [quoteLoading, setQuoteLoading] = useState(false);
+
+    const handleQuoteRequest = async (e) => {
+        e.preventDefault();
+        setQuoteLoading(true);
+        try {
+            const formData = new FormData(e.target);
+            await api.post('/contacts', {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                subject: `Quote Request: ${isQuoting.modelName}`,
+                message: `I am interested in the ${isQuoting.brand?.name} ${isQuoting.modelName}. Please provide a quote. \nPhone: ${formData.get('phone')}`
+            });
+            setIsQuoting(null);
+            alert("Quote request dispatched! Our hangar team will contact you shortly.");
+        } catch (error) {
+            console.error("Failed to send quote request", error);
+            alert("Dispatch failed. Please try again.");
+        } finally {
+            setQuoteLoading(false);
+        }
     };
 
     return (
@@ -118,66 +142,76 @@ function ComparisonContent() {
                 </div>
             </section>
 
-            <div className="container mx-auto px-6 lg:px-12 py-16 overflow-x-auto">
+            <div className="container mx-auto px-6 lg:px-12 py-16">
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-40 gap-4">
                         <Loader2 className="animate-spin text-primary h-12 w-12" />
                         <p className="text-xs font-black uppercase tracking-widest text-zinc-400">Syncing Engine Data...</p>
                     </div>
                 ) : motorcycles.length > 0 ? (
-                    <div className="min-w-[800px]">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr>
-                                    <th className="w-1/4 p-6 text-left bg-zinc-50 border-b-4 border-black font-black uppercase italic tracking-tighter text-2xl">Requirement</th>
-                                    {motorcycles.map(bike => (
-                                        <th key={bike._id} className="p-6 bg-white border-b-4 border-black relative group">
-                                            <button
-                                                onClick={() => removeMotorcycle(bike.slug)}
-                                                className="absolute top-4 right-4 text-zinc-300 hover:text-primary transition-colors"
-                                            >
-                                                <X size={20} />
-                                            </button>
-                                            <div className="space-y-4">
-                                                <div className="aspect-video bg-zinc-100 overflow-hidden">
-                                                    <img src={bike.images?.[0]} alt={bike.modelName} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
-                                                </div>
-                                                <div className="text-left">
-                                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary">{bike.brand?.name}</p>
-                                                    <h3 className="text-xl font-black uppercase italic tracking-tighter text-black">{bike.modelName}</h3>
-                                                </div>
-                                            </div>
-                                        </th>
-                                    ))}
-                                    {motorcycles.length < 3 && (
-                                        <th className="p-6 bg-zinc-50/50 border-b-4 border-black border-dashed border-2">
-                                            <button
-                                                onClick={() => setIsAdding(true)}
-                                                className="w-full h-full flex flex-col items-center justify-center gap-4 text-zinc-300 hover:text-primary transition-colors group"
-                                            >
-                                                <div className="h-16 w-16 border-2 border-dashed border-zinc-200 flex items-center justify-center group-hover:border-primary">
-                                                    <Plus size={32} />
-                                                </div>
-                                                <span className="text-xs font-black uppercase tracking-[0.2em]">Add Alternative</span>
-                                            </button>
-                                        </th>
-                                    )}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {specKeys.map((spec, i) => (
-                                    <tr key={spec.label} className={i % 2 === 0 ? "bg-zinc-50/50" : "bg-white"}>
-                                        <td className="p-6 border-b border-zinc-100 font-black uppercase tracking-widest text-[10px] text-zinc-400">{spec.label}</td>
+                    <div className="relative border-4 border-black">
+                        <div className="overflow-x-auto scrollbar-hide">
+                            <table className="w-full border-collapse min-w-[900px]">
+                                <thead>
+                                    <tr>
+                                        <th className="sticky left-0 z-20 w-1/4 p-6 text-left bg-zinc-50 border-b-4 border-black font-black text-black uppercase italic tracking-tighter text-2xl shadow-[4px_0_10px_rgba(0,0,0,0.05)]">Requirement</th>
                                         {motorcycles.map(bike => (
-                                            <td key={bike._id} className="p-6 border-b border-zinc-100 font-bold text-black text-sm text-center">
-                                                {spec.format ? spec.format(getNestedValue(bike, spec.key)) : (getNestedValue(bike, spec.key) || "—")}
-                                            </td>
+                                            <th key={bike._id} className="p-6 bg-white border-b-4 border-black relative group min-w-[280px]">
+                                                <button
+                                                    onClick={() => removeMotorcycle(bike.slug)}
+                                                    className="absolute top-4 right-4 text-zinc-300 hover:text-primary transition-colors z-10"
+                                                >
+                                                    <X size={20} />
+                                                </button>
+                                                <div className="space-y-4">
+                                                    <div className="aspect-video bg-zinc-100 overflow-hidden">
+                                                        <img src={bike.images?.[0]} alt={bike.modelName} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary">{bike.brand?.name}</p>
+                                                        <h3 className="text-xl font-black uppercase italic tracking-tighter text-black line-clamp-1">{bike.modelName}</h3>
+                                                        <Button
+                                                            onClick={() => setIsQuoting(bike)}
+                                                            className="w-full mt-4 bg-black text-white hover:bg-primary rounded-none h-10 uppercase font-black tracking-widest text-[10px] transition-all"
+                                                        >
+                                                            Request Quote
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </th>
                                         ))}
-                                        {motorcycles.length < 3 && <td className="p-6 border-b border-zinc-100" />}
+                                        {motorcycles.length < 3 && (
+                                            <th className="p-6 bg-zinc-50/50 border-b-4 border-black border-dashed border-2 min-w-[280px]">
+                                                <button
+                                                    onClick={() => setIsAdding(true)}
+                                                    className="w-full h-full flex flex-col items-center justify-center gap-4 text-zinc-300 hover:text-primary transition-colors group"
+                                                >
+                                                    <div className="h-16 w-16 border-2 border-dashed border-zinc-200 flex items-center justify-center group-hover:border-primary">
+                                                        <Plus size={32} />
+                                                    </div>
+                                                    <span className="text-xs font-black uppercase tracking-[0.2em]">Add Alternative</span>
+                                                </button>
+                                            </th>
+                                        )}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {specKeys.map((spec, i) => (
+                                        <tr key={spec.label} className={i % 2 === 0 ? "bg-zinc-50/50" : "bg-white"}>
+                                            <td className="sticky left-0 z-20 p-6 border-b border-zinc-100 font-black uppercase tracking-widest text-[10px] text-zinc-400 bg-inherit shadow-[4px_0_10px_rgba(0,0,0,0.05)]">{spec.label}</td>
+                                            {motorcycles.map(bike => (
+                                                <td key={bike._id} className="p-6 border-b border-zinc-100 font-bold text-black text-sm text-center">
+                                                    {spec.format ? spec.format(getNestedValue(bike, spec.key)) : (getNestedValue(bike, spec.key) || "—")}
+                                                </td>
+                                            ))}
+                                            {motorcycles.length < 3 && <td className="p-6 border-b border-zinc-100" />}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* Shadow Gradient for Scroll Suggestion */}
+                        <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-black/5 to-transparent pointer-events-none lg:hidden" />
                     </div>
                 ) : (
                     <div className="text-center py-40 border-4 border-dashed border-zinc-100">
@@ -193,6 +227,44 @@ function ComparisonContent() {
                     </div>
                 )}
             </div>
+
+            {/* Quote Modal */}
+            {isQuoting && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md">
+                    <div className="bg-white w-full max-w-lg border-l-[12px] border-primary p-12 space-y-8 relative">
+                        <button onClick={() => setIsQuoting(null)} className="absolute top-8 right-8 text-zinc-300 hover:text-black transition-colors"><X size={24} /></button>
+
+                        <div className="space-y-2">
+                            <h2 className="text-4xl font-black uppercase italic tracking-tighter">Strategic <span className="text-primary not-italic">Inquiry</span></h2>
+                            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest leading-relaxed">Request high-performance pricing for the {isQuoting.modelName}</p>
+                        </div>
+
+                        <form onSubmit={handleQuoteRequest} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Identify Yourself</label>
+                                <input name="name" required placeholder="Full Name" className="w-full bg-zinc-50 border-2 border-zinc-100 p-4 font-bold outline-none focus:border-black transition-all" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Communication Node</label>
+                                    <input name="email" type="email" required placeholder="Email" className="w-full bg-zinc-50 border-2 border-zinc-100 p-4 font-bold outline-none focus:border-black transition-all" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Tactical Contact</label>
+                                    <input name="phone" required placeholder="Phone" className="w-full bg-zinc-50 border-2 border-zinc-100 p-4 font-bold outline-none focus:border-black transition-all" />
+                                </div>
+                            </div>
+                            <Button
+                                type="submit"
+                                disabled={quoteLoading}
+                                className="w-full bg-black text-white hover:bg-primary h-16 rounded-none font-black uppercase tracking-widest transition-all text-lg"
+                            >
+                                {quoteLoading ? <Loader2 className="animate-spin" /> : "Dispatch Quote Request"}
+                            </Button>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Selection Modal */}
             {isAdding && (

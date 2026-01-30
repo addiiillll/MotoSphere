@@ -124,7 +124,7 @@ export default function AdminMotorcycles() {
                                                 {bike.type}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-6 font-black text-primary">${bike.price?.toLocaleString()}</td>
+                                        <td className="px-6 py-6 font-black text-primary">₹{bike.price?.toLocaleString()}</td>
                                         <td className="px-6 py-6">
                                             {bike.isHighlighted && (
                                                 <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 bg-primary/20 text-primary border border-primary/30">

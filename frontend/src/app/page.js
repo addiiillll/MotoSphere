@@ -147,7 +147,7 @@ export default function Home() {
                         <p className="text-xs font-black uppercase tracking-widest text-primary mb-1">{bike.brand?.name}</p>
                         <h3 className="text-2xl font-black uppercase italic tracking-tighter">{bike.modelName}</h3>
                       </div>
-                      <div className="text-xl font-bold italic text-white">${bike.price?.toLocaleString()}</div>
+                      <div className="text-xl font-bold italic text-white">₹{bike.price?.toLocaleString()}</div>
                     </div>
                     <p className="text-zinc-500 text-sm line-clamp-2">{bike.description}</p>
                     <Link href={`/motorcycles/slug/${bike.slug}`}>

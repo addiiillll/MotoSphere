@@ -45,6 +45,16 @@ export const getMotorcycleBySlug = async (req, res) => {
     }
 };
 
+export const getMotorcycleById = async (req, res) => {
+    try {
+        const motorcycle = await Motorcycle.findById(req.params.id).populate("brand");
+        if (!motorcycle) return res.status(404).json({ message: "Motorcycle not found" });
+        res.status(200).json(motorcycle);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export const updateMotorcycle = async (req, res) => {
     try {
         if (req.body.modelName) {

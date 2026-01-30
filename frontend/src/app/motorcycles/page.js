@@ -26,6 +26,7 @@ export default function MotorcyclesListing() {
         type: "",
         minPrice: "",
         maxPrice: "",
+        displacement: "",
         search: ""
     });
 
@@ -53,6 +54,7 @@ export default function MotorcyclesListing() {
             if (currentFilters.type) query.append("type", currentFilters.type);
             if (currentFilters.minPrice) query.append("minPrice", currentFilters.minPrice);
             if (currentFilters.maxPrice) query.append("maxPrice", currentFilters.maxPrice);
+            if (currentFilters.displacement) query.append("displacement", currentFilters.displacement);
 
             const data = await api.get(`/motorcycles?${query.toString()}`);
             setMotorcycles(data);
@@ -67,7 +69,7 @@ export default function MotorcyclesListing() {
         const newFilters = { ...filters, [key]: value };
         setFilters(newFilters);
         // Debounce or trigger fetch if it's a select/checkbox
-        if (key !== 'search' && key !== 'minPrice' && key !== 'maxPrice') {
+        if (key !== 'search' && key !== 'minPrice' && key !== 'maxPrice' && key !== 'displacement') {
             fetchMotorcycles(newFilters);
         }
     };
@@ -82,6 +84,7 @@ export default function MotorcyclesListing() {
             type: "",
             minPrice: "",
             maxPrice: "",
+            displacement: "",
             search: ""
         };
         setFilters(defaultFilters);
@@ -158,8 +161,8 @@ export default function MotorcyclesListing() {
                                         key={type}
                                         onClick={() => handleFilterChange('type', filters.type === type ? "" : type)}
                                         className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest border-2 transition-all ${filters.type === type
-                                                ? "bg-primary border-primary text-white"
-                                                : "bg-white border-zinc-200 text-zinc-500 hover:border-black hover:text-black"
+                                            ? "bg-primary border-primary text-white"
+                                            : "bg-white border-zinc-200 text-zinc-500 hover:border-black hover:text-black"
                                             }`}
                                     >
                                         {type}
@@ -170,7 +173,7 @@ export default function MotorcyclesListing() {
 
                         {/* Price Filter */}
                         <div className="space-y-4">
-                            <Label className="text-xs font-black uppercase tracking-widest text-zinc-500">Price Range ($)</Label>
+                            <Label className="text-xs font-black uppercase tracking-widest text-zinc-500">Price Range (₹)</Label>
                             <div className="grid grid-cols-2 gap-4">
                                 <Input
                                     placeholder="Min"
@@ -187,11 +190,23 @@ export default function MotorcyclesListing() {
                                     className="rounded-none border-2 border-zinc-200 font-bold focus:border-black"
                                 />
                             </div>
+                        </div>
+
+                        {/* Displacement Filter */}
+                        <div className="space-y-4">
+                            <Label className="text-xs font-black uppercase tracking-widest text-zinc-500">Min displacement (CC)</Label>
+                            <Input
+                                placeholder="E.g. 500"
+                                type="number"
+                                value={filters.displacement}
+                                onChange={(e) => handleFilterChange('displacement', e.target.value)}
+                                className="rounded-none border-2 border-zinc-200 font-bold focus:border-black h-12"
+                            />
                             <Button
                                 onClick={applyFilters}
                                 className="w-full bg-black text-white hover:bg-primary h-12 rounded-none font-black uppercase tracking-widest mt-2"
                             >
-                                Apply Range
+                                Apply Filters
                             </Button>
                         </div>
                     </aside>
@@ -227,7 +242,7 @@ export default function MotorcyclesListing() {
                                                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{bike.brand?.name}</p>
                                                         <h3 className="text-xl font-black uppercase italic tracking-tighter leading-none group-hover:text-primary transition-colors">{bike.modelName}</h3>
                                                     </div>
-                                                    <div className="text-lg font-black italic">${bike.price?.toLocaleString()}</div>
+                                                    <div className="text-lg font-black italic">₹{bike.price?.toLocaleString()}</div>
                                                 </div>
                                                 <div className="space-y-3 mt-auto pt-6 border-t border-zinc-200">
                                                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-zinc-400">

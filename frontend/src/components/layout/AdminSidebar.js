@@ -9,8 +9,10 @@ import {
     LogOut,
     Home
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const AdminSidebar = () => {
+    const { logout } = useAuth();
     const menuItems = [
         { icon: <LayoutDashboard size={20} />, label: "Dashboard", href: "/admin" },
         { icon: <Bike size={20} />, label: "Motorcycles", href: "/admin/motorcycles" },
@@ -58,7 +60,10 @@ const AdminSidebar = () => {
                     <Home size={20} />
                     <span className="text-sm font-bold uppercase tracking-wider">Public Site</span>
                 </Link>
-                <button className="flex items-center gap-3 px-4 py-3 w-full text-zinc-400 hover:text-primary transition-colors text-left">
+                <button
+                    onClick={logout}
+                    className="flex items-center gap-3 px-4 py-3 w-full text-zinc-400 hover:text-primary transition-colors text-left"
+                >
                     <LogOut size={20} />
                     <span className="text-sm font-bold uppercase tracking-wider">Log Out</span>
                 </button>
